@@ -77,9 +77,12 @@ class _HomePageState extends State<HomePage> {
                     crossAxisCount: 3),
                 itemBuilder: (context, index) {
                   return Draggable(
-                      feedback: Image.asset(
-                        list[index].image,
-                        width: 96,
+                      feedback: Opacity(
+                        opacity: 0.5,
+                        child: Image.asset(
+                          list[index].image,
+                          width: 96,
+                        ),
                       ),
                       data: list[index].name,
                       child: Card(
@@ -169,9 +172,12 @@ class _HomePageState extends State<HomePage> {
             content: SizedBox(
               height: 200,
               child: Column(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                mainAxisSize: MainAxisSize.max,
                 children: [
-                  Text("Max Round : $round"),
+                  Text("Max Round : ${round-1}"),
                   Text("Your Rank : $correctAnswer"),
+                  SizedBox(height: 40,),
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                     children: [
