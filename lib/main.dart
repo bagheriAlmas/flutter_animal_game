@@ -27,6 +27,8 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
+  bool finishGame = false;
+  bool btnResumeVisibility = true;
   String messageTitle = "";
   Color messageColor = Colors.red;
   int wrongAnswer = 0;
@@ -76,22 +78,25 @@ class _HomePageState extends State<HomePage> {
                 gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
                     crossAxisCount: 3),
                 itemBuilder: (context, index) {
-                  return Draggable(
-                      feedback: Opacity(
-                        opacity: 0.5,
-                        child: Image.asset(
-                          list[index].image,
-                          width: 96,
+                  return IgnorePointer(
+                    ignoring: finishGame,
+                    child: Draggable(
+                        feedback: Opacity(
+                          opacity: 0.5,
+                          child: Image.asset(
+                            list[index].image,
+                            width: 96,
+                          ),
                         ),
-                      ),
-                      data: list[index].name,
-                      child: Card(
-                        elevation: 4,
-                        child: Image.asset(
-                          list[index].image,
-                          width: 96,
-                        ),
-                      ));
+                        data: list[index].name,
+                        child: Card(
+                          elevation: 4,
+                          child: Image.asset(
+                            list[index].image,
+                            width: 96,
+                          ),
+                        )),
+                  );
                 },
               ),
             ),
@@ -110,6 +115,8 @@ class _HomePageState extends State<HomePage> {
                   generateSnackbar("Wrong", Colors.redAccent);
                   wrongAnswer++;
                   if (wrongAnswer == 3) {
+                    btnResumeVisibility = false;
+                    finishGame = true;
                     endGame();
                   }
                 }
@@ -157,10 +164,11 @@ class _HomePageState extends State<HomePage> {
   void restartGame() {
     list = GenerateAnimalList().getRandomAnimal();
     strAnimalName = (list..shuffle()).elementAt(rnd.nextInt(6)).name;
-
+    btnResumeVisibility = true;
     round = 1;
     correctAnswer = 0;
     wrongAnswer = 0;
+    finishGame = false;
   }
 
   void endGame() {
@@ -168,7 +176,12 @@ class _HomePageState extends State<HomePage> {
       context: context,
       builder: (context) {
         return AlertDialog(
-            title: const Text("Game Over"),
+            title: Column(
+              children: [
+                Center(child: const Text("Game Over")),
+                Divider(color: Colors.black,)
+              ],
+            ),
             content: SizedBox(
               height: 200,
               child: Column(
@@ -179,7 +192,7 @@ class _HomePageState extends State<HomePage> {
                   Text("Your Rank : $correctAnswer"),
                   const SizedBox(height: 40,),
                   Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                    mainAxisAlignment: MainAxisAlignment.center,
                     children: [
                       ElevatedButton(
                           onPressed: () {
@@ -189,11 +202,17 @@ class _HomePageState extends State<HomePage> {
                             });
                           },
                           child: const Text("Restart")),
-                      ElevatedButton(
-                          onPressed: () {
-                            Navigator.of(context).pop(false);
-                          },
-                          child: const Text("Resume"))
+                      Visibility(
+                          visible: btnResumeVisibility,
+                          child: SizedBox(width: 20,)),
+                      Visibility(
+                        visible: btnResumeVisibility,
+                        child: ElevatedButton(
+                            onPressed: () {
+                              Navigator.of(context).pop(false);
+                            },
+                            child: const Text("Resume")),
+                      )
                     ],
                   )
                 ],
