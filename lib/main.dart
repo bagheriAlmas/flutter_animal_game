@@ -177,7 +177,7 @@ class _HomePageState extends State<HomePage> {
                 children: [
                   Text("Max Round : ${round-1}"),
                   Text("Your Rank : $correctAnswer"),
-                  SizedBox(height: 40,),
+                  const SizedBox(height: 40,),
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                     children: [
