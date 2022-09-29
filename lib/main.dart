@@ -42,108 +42,148 @@ class _HomePageState extends State<HomePage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text("Animal Game"),
-        actions: [
-          IconButton(
-              onPressed: () {
-                setState(() {
-                  endGame();
-                });
-              },
-              icon: const Icon(Icons.restart_alt)),
-        ],
-      ),
-      body: Column(
-        children: [
-          Card(
-            margin: const EdgeInsets.all(8.0),
-            child: Padding(
-              padding: const EdgeInsets.all(20.0),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceAround,
-                children: [
-                  Text("درست : $correctAnswer"),
-                  Text("غلط : 3 / $wrongAnswer"),
-                  Text("راند : $round"),
-                ],
+      body: Container(
+        decoration: BoxDecoration(
+            image: DecorationImage(
+                image: AssetImage("assets/images/background.jpeg"),
+                fit: BoxFit.cover)),
+        child: SafeArea(
+          bottom: false,
+          child: Column(
+            children: [
+              Card(
+                margin: const EdgeInsets.all(8.0),
+                child: Padding(
+                  padding: const EdgeInsets.all(10.0),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceAround,
+                    children: [
+                      Text("درست : $correctAnswer"),
+                      Text("غلط : 3 / $wrongAnswer"),
+                      Text("راند : $round"),
+                      IconButton(
+                          onPressed: () {
+                            setState(() {
+                              endGame();
+                            });
+                          },
+                          icon: const Icon(Icons.restart_alt)),
+                    ],
+                  ),
+                ),
               ),
-            ),
-          ),
-          Expanded(
-            child: Padding(
-              padding: const EdgeInsets.all(5.0),
-              child: GridView.builder(
-                itemCount: list.length,
-                gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                    crossAxisCount: 3),
-                itemBuilder: (context, index) {
-                  return IgnorePointer(
-                    ignoring: finishGame,
-                    child: Draggable(
-                        feedback: Opacity(
-                          opacity: 0.5,
-                          child: Image.asset(
-                            list[index].image,
-                            width: 96,
+              Expanded(
+                child: Padding(
+                  padding: const EdgeInsets.all(5.0),
+                  child: GridView.builder(
+                    itemCount: list.length,
+                    gridDelegate:
+                        const SliverGridDelegateWithFixedCrossAxisCount(
+                      crossAxisCount: 3,
+                          childAspectRatio: 1/1,
+                          crossAxisSpacing: 10
+                    ),
+                    itemBuilder: (context, index) {
+                      return IgnorePointer(
+                        ignoring: finishGame,
+                        child: Draggable(
+                            feedback: Opacity(
+                              opacity: 0.8,
+                              child: Image.asset(
+                                list[index].image,
+                                width: 96,
+                              ),
+                            ),
+                            data: list[index].name,
+                            child: Card(
+                              shape: RoundedRectangleBorder(
+                                  borderRadius:
+                                      BorderRadius.all(Radius.circular(40))),
+                              elevation: 4,
+                              child: Container(
+                                decoration: BoxDecoration(
+                                    borderRadius:
+                                        BorderRadius.all(Radius.circular(40)),
+                                    color: Colors.lightGreen),
+                                // color: Colors.green.shade200,
+                                child: Image.asset(
+                                  list[index].image,
+                                  width: 32,
+                                ),
+                              ),
+                            )),
+                      );
+                    },
+                  ),
+                ),
+              ),
+              const SizedBox(height: 50),
+              DragTarget(
+                onWillAccept: (data) => true,
+                onAccept: (data) {
+                  setState(() {
+                    if (data == strAnimalName) {
+                      // print("Correct");
+                      generateSnackbar("Correct", Colors.green);
+                      correctAnswer++;
+                    } else {
+                      // print("Wrong");
+                      generateSnackbar("Wrong", Colors.redAccent);
+                      wrongAnswer++;
+                      if (wrongAnswer == 3) {
+                        btnResumeVisibility = false;
+                        finishGame = true;
+                        endGame();
+                      }
+                    }
+                    list = GenerateAnimalList().getRandomAnimal();
+                    Random rnd = Random();
+                    strAnimalName =
+                        (list..shuffle()).elementAt(rnd.nextInt(6)).name;
+                    round++;
+                  });
+                },
+                builder: (context, candidateData, rejectedData) {
+                  return Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Container(
+                        decoration: const BoxDecoration(
+                          image: DecorationImage(
+                              image: AssetImage("assets/images/cave.png")),
+                        ),
+                        alignment: Alignment.center,
+                        width: 250,
+                        height: 200,
+                      ),
+                      Stack(alignment: Alignment.center, children: [
+                        Image.asset("assets/images/wood_arrow.png", width: 130),
+                        Positioned(
+                          top: 40,
+                          left: 25,
+                          child: SizedBox(
+                            width: 100,
+                            child: Center(
+                              child: Text(
+                                textAlign: TextAlign.center,
+                                strAnimalName,
+                                style: const TextStyle(
+                                    color: Colors.white,
+                                    fontSize: 20,
+                                    fontWeight: FontWeight.w900),
+                              ),
+                            ),
                           ),
                         ),
-                        data: list[index].name,
-                        child: Card(
-                          elevation: 4,
-                          child: Image.asset(
-                            list[index].image,
-                            width: 96,
-                          ),
-                        )),
+                      ]),
+                    ],
                   );
                 },
               ),
-            ),
+              const SizedBox(height: 50)
+            ],
           ),
-          const SizedBox(height: 50),
-          DragTarget(
-            onWillAccept: (data) => true,
-            onAccept: (data) {
-              setState(() {
-                if (data == strAnimalName) {
-                  // print("Correct");
-                  generateSnackbar("Correct", Colors.green);
-                  correctAnswer++;
-                } else {
-                  // print("Wrong");
-                  generateSnackbar("Wrong", Colors.redAccent);
-                  wrongAnswer++;
-                  if (wrongAnswer == 3) {
-                    btnResumeVisibility = false;
-                    finishGame = true;
-                    endGame();
-                  }
-                }
-                list = GenerateAnimalList().getRandomAnimal();
-                Random rnd = Random();
-                strAnimalName =
-                    (list..shuffle()).elementAt(rnd.nextInt(6)).name;
-                round++;
-              });
-            },
-            builder: (context, candidateData, rejectedData) {
-              return Container(
-                decoration: const BoxDecoration(
-                    color: Colors.pinkAccent,
-                    borderRadius: BorderRadius.all(Radius.circular(20))),
-                alignment: Alignment.center,
-                width: 150,
-                height: 150,
-                child: Text(
-                  strAnimalName,
-                  style: const TextStyle(color: Colors.white, fontSize: 20),
-                ),
-              );
-            },
-          ),
-          const SizedBox(height: 50)
-        ],
+        ),
       ),
     );
   }
@@ -179,7 +219,9 @@ class _HomePageState extends State<HomePage> {
             title: Column(
               children: [
                 Center(child: const Text("Game Over")),
-                Divider(color: Colors.black,)
+                Divider(
+                  color: Colors.black,
+                )
               ],
             ),
             content: SizedBox(
@@ -188,9 +230,11 @@ class _HomePageState extends State<HomePage> {
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 mainAxisSize: MainAxisSize.max,
                 children: [
-                  Text("Max Round : ${round-1}"),
+                  Text("Max Round : ${round - 1}"),
                   Text("Your Rank : $correctAnswer"),
-                  const SizedBox(height: 40,),
+                  const SizedBox(
+                    height: 40,
+                  ),
                   Row(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
@@ -204,7 +248,9 @@ class _HomePageState extends State<HomePage> {
                           child: const Text("Restart")),
                       Visibility(
                           visible: btnResumeVisibility,
-                          child: SizedBox(width: 20,)),
+                          child: SizedBox(
+                            width: 20,
+                          )),
                       Visibility(
                         visible: btnResumeVisibility,
                         child: ElevatedButton(
